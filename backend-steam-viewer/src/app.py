@@ -2,48 +2,74 @@
 Steam Library Viewer - Aplicación Principal
 Aplicación web para visualizar y exportar bibliotecas de Steam
 """
-from flask import Flask
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 from src.config.config import Config
-from src.routes.main_routes import main_bp
+from src.routes.main_routes import router
 
 
 def create_app():
     """
-    Factory function para crear la aplicación Flask
+    Factory function para crear la aplicación FastAPI
     
     Returns:
-        Aplicación Flask configurada
+        Aplicación FastAPI configurada
     """
-    app = Flask(
-        __name__,
-        template_folder='../templates',
-        static_folder='../static'
+    app = FastAPI(
+        title="Steam Library Viewer API",
+        description="API para visualizar y exportar bibliotecas de Steam",
+        version="1.0.0"
     )
     
-    # Cargar configuración
-    app.config.from_object(Config)
+    # Configurar CORS para permitir peticiones desde el frontend React
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Frontend URLs
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     
-    # Registrar Blueprints
-    app.register_blueprint(main_bp)
+    # Montar archivos estáticos
+    static_path = os.path.join(os.path.dirname(__file__), '..', 'static')
+    if os.path.exists(static_path):
+        app.mount("/static", StaticFiles(directory=static_path), name="static")
+    
+    # Registrar rutas
+    app.include_router(router)
+    
+    # Ruta para servir index.html (opcional si usas React)
+    @app.get("/")
+    async def root():
+        templates_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'index.html')
+        if os.path.exists(templates_path):
+            return FileResponse(templates_path)
+        return {"message": "Steam Library Viewer API"}
     
     return app
 
 
 def main():
     """Función principal para ejecutar la aplicación"""
-    app = create_app()
+    import uvicorn
     
     print("=" * 50)
-    print("Steam Library Viewer")
+    print("Steam Library Viewer API")
     print("=" * 50)
     print(f"Servidor iniciando en http://{Config.HOST}:{Config.PORT}")
     print(f"API Key configurada: {'✓' if Config.STEAM_API_KEY else '✗'}")
+    print(f"Documentación: http://{Config.HOST}:{Config.PORT}/docs")
     print("=" * 50)
     
-    app.run(
-        debug=Config.DEBUG,
+    uvicorn.run(
+        "src.app:create_app",
+        factory=True,
         host=Config.HOST,
-        port=Config.PORT
+        port=Config.PORT,
+        reload=Config.DEBUG
     )
 
 

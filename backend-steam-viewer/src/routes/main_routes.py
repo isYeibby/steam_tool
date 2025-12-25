@@ -1,27 +1,22 @@
 """
 Rutas principales de la aplicación Steam Library Viewer
 """
-from flask import Blueprint, render_template, jsonify, send_file, request
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 import pandas as pd
 from datetime import datetime
 import io
 from src.services.steam_service import SteamService
 
-# Crear Blueprint
-main_bp = Blueprint('main', __name__)
+# Crear router
+router = APIRouter(prefix="/api", tags=["steam"])
 
 # Instanciar servicio
 steam_service = SteamService()
 
 
-@main_bp.route('/')
-def index():
-    """Página principal de la aplicación"""
-    return render_template('index.html')
-
-
-@main_bp.route('/api/games/<steam_id>')
-def get_games(steam_id):
+@router.get("/games/{steam_id}")
+async def get_games(steam_id: str):
     """
     API endpoint para obtener los juegos de un usuario
     
@@ -36,10 +31,11 @@ def get_games(steam_id):
     player = steam_service.get_player_summary(steam_id)
     
     if not games:
-        return jsonify({
-            'error': 'No se pudieron obtener los juegos. '
-                    'Verifica que el perfil sea público y el Steam ID sea correcto.'
-        }), 400
+        raise HTTPException(
+            status_code=400,
+            detail='No se pudieron obtener los juegos. '
+                   'Verifica que el perfil sea público y el Steam ID sea correcto.'
+        )
     
     # Procesar los datos
     games_list = steam_service.process_games_data(games)
@@ -47,15 +43,15 @@ def get_games(steam_id):
     # Calcular estadísticas
     stats = steam_service.calculate_statistics(games_list)
     
-    return jsonify({
+    return {
         'player': player,
         'games': games_list,
         'stats': stats
-    })
+    }
 
 
-@main_bp.route('/api/export/<steam_id>')
-def export_csv(steam_id):
+@router.get("/export/{steam_id}")
+async def export_csv(steam_id: str):
     """
     Exporta los juegos a CSV
     
@@ -68,7 +64,7 @@ def export_csv(steam_id):
     games = steam_service.get_owned_games(steam_id)
     
     if not games:
-        return jsonify({'error': 'No se pudieron obtener los juegos'}), 400
+        raise HTTPException(status_code=400, detail='No se pudieron obtener los juegos')
     
     # Procesar datos
     games_list = steam_service.process_games_data(games)
@@ -86,23 +82,22 @@ def export_csv(steam_id):
     df = pd.DataFrame(games_data)
     
     # Crear archivo CSV en memoria
-    output = io.BytesIO()
+    output = io.StringIO()
     df.to_csv(output, index=False, encoding='utf-8-sig')
     output.seek(0)
     
     # Nombre del archivo
     filename = f'steam_games_{steam_id}_{datetime.now().strftime("%Y%m%d")}.csv'
     
-    return send_file(
-        output,
-        mimetype='text/csv',
-        as_attachment=True,
-        download_name=filename
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type='text/csv',
+        headers={'Content-Disposition': f'attachment; filename={filename}'}
     )
 
 
-@main_bp.route('/api/game/<int:appid>')
-def get_game_details(appid):
+@router.get("/game/{appid}")
+async def get_game_details(appid: int):
     """
     Obtiene detalles adicionales de un juego específico
     
@@ -115,6 +110,7 @@ def get_game_details(appid):
     details = steam_service.get_game_details_steamspy(appid)
     
     if not details:
-        return jsonify({'error': 'No se pudieron obtener los detalles del juego'}), 404
+        raise HTTPException(status_code=404, detail='No se pudieron obtener los detalles del juego')
     
-    return jsonify(details)
+    return details
+

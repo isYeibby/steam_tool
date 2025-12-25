@@ -1,4 +1,4 @@
 """Paquete de rutas"""
-from src.routes.main_routes import main_bp
+from src.routes.main_routes import router
 
-__all__ = ['main_bp']
+__all__ = ['router']
