@@ -1,108 +1,78 @@
 # Steam Library Viewer
 
-Aplicación web para visualizar y exportar tu biblioteca de Steam con una interfaz moderna.
-
-## Características
-
-- Visualiza toda tu biblioteca de Steam
-- Estadísticas detalladas (total de juegos, horas jugadas, promedio, etc.)
-- Exportación a CSV
+Aplicación web para visualizar y exportar bibliotecas de Steam con interfaz moderna Material Design 3.
 
 ## Requisitos
 
-- Python 3.7 o superior
+- Python 3.7+
+- Node.js 16+
 - Steam API Key
 - Perfil de Steam público
 
 ## Instalación
 
-1. **Clonar o descargar el proyecto**
+### Backend (FastAPI)
 
-2. **Crear entorno virtual (recomendado)**
-   ```bash
-   python -m venv .venv
-   ```
+```bash
+cd backend-steam-viewer
+python -m venv .venv
+.venv\Scripts\Activate.ps1  # Windows PowerShell
+source .venv/bin/activate    # Linux/Mac
+pip install -r requirements.txt
+```
 
-3. **Activar el entorno virtual**
-   
-   En Windows (PowerShell):
-   ```powershell
-   .\.venv\Scripts\Activate.ps1
-   ```
-   
-   En Windows (CMD):
-   ```cmd
-   .venv\Scripts\activate.bat
-   ```
-   
-   En Linux/Mac:
-   ```bash
-   source .venv/bin/activate
-   ```
+### Frontend (React + Vite)
 
-4. **Instalar dependencias**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+cd frontend-steam-viewer
+npm install
+```
 
 ## Configuración
 
-1. **Obtener tu Steam API Key**
-   - Ve a https://steamcommunity.com/dev/apikey
-   - Inicia sesión con tu cuenta de Steam
-   - Registra tu dominio (puedes usar `localhost`)
-   - Copia tu API Key
+1. Obtén tu Steam API Key en https://steamcommunity.com/dev/apikey
 
-2. **Configurar la API Key en el archivo .env**
-   - Crea un archivo llamado `.env` en la raíz del proyecto (si no existe)
-   - Agrega tu API Key de la siguiente forma:
-   ```env
-   STEAM_API_KEY=TU_API_KEY_AQUI
-   ```
-   - Ejemplo:
-   ```env
-   STEAM_API_KEY=A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6
-   ```
-   - El archivo `.gitignore` ya está configurado para ignorarlo.
+2. Crea un archivo `.env` en la raíz del proyecto:
+
+```env
+STEAM_API_KEY=TU_API_KEY_AQUI
+```
+
+3. Asegúrate de que tu perfil de Steam sea público:
+   - Ve a tu perfil de Steam
+   - Editar perfil > Configuración de privacidad
+   - Establece "Detalles del juego" como Público
 
 ## Uso
 
-### Iniciar el servidor
+### Iniciar Backend
 
-**Recomendado:**
 ```bash
+cd backend-steam-viewer
 python run.py
 ```
 
-Verás un mensaje como:
+El servidor estará en http://localhost:5000
+Documentación API: http://localhost:5000/docs
+
+### Iniciar Frontend
+
+```bash
+cd frontend-steam-viewer
+npm run dev
 ```
-==================================================
-Steam Library Viewer
-==================================================
-Servidor iniciando en http://0.0.0.0:5000
-API Key configurada: ✓
-==================================================
-```
 
-### Acceder a la aplicación
+La aplicación estará en http://localhost:5173
 
-Abre tu navegador web y ve a:
-- **Local:** http://localhost:5000
-- **Red local:** http://TU_IP:5000
+## Obtener Steam ID
 
-### Configurar perfil de Steam
+- Opción 1: Copia el número de 17 dígitos de tu URL de perfil de Steam
+- Opción 2: Usa https://steamid.io
 
-1. **Encontrar tu Steam ID**
-   - Opción 1: Ve a tu perfil de Steam y copia el número de 17 dígitos de la URL
-   - Opción 2: Usa https://steamid.io para encontrar tu Steam ID64
-   - Ejemplo: `76561198012345678`
+Ejemplo: `76561198012345678`
 
-2. **Configurar perfil público**
-   - Ve a tu perfil de Steam
-   - Click en "Editar perfil"
-   - En "Configuración de privacidad", establece "Detalles del juego" como **Público**
+## Tecnologías
 
-3. **Usar la aplicación web**
-   - Ingresa tu Steam ID en la aplicación
-   - Explora estadísticas y juegos
-   - Exporta datos a CSV
+**Backend:** FastAPI, Python, Pandas, Requests
+**Frontend:** React, Vite, Lucide Icons, Axios
+**Diseño:** Material Design 3
