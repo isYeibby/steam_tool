@@ -1,12 +1,9 @@
 """
 Steam Library Viewer - Aplicación Principal
-Aplicación web para visualizar y exportar bibliotecas de Steam
+API FastAPI para visualizar y exportar bibliotecas de Steam
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
 from src.config.config import Config
 from src.routes.main_routes import router
 
@@ -33,21 +30,18 @@ def create_app():
         allow_headers=["*"],
     )
     
-    # Montar archivos estáticos
-    static_path = os.path.join(os.path.dirname(__file__), '..', 'static')
-    if os.path.exists(static_path):
-        app.mount("/static", StaticFiles(directory=static_path), name="static")
-    
-    # Registrar rutas
+    # Registrar rutas de la API
     app.include_router(router)
     
-    # Ruta para servir index.html (opcional si usas React)
+    # Ruta raíz de la API
     @app.get("/")
     async def root():
-        templates_path = os.path.join(os.path.dirname(__file__), '..', 'templates', 'index.html')
-        if os.path.exists(templates_path):
-            return FileResponse(templates_path)
-        return {"message": "Steam Library Viewer API"}
+        return {
+            "message": "Steam Library Viewer API",
+            "version": "1.0.0",
+            "docs": "/docs",
+            "redoc": "/redoc"
+        }
     
     return app
 
