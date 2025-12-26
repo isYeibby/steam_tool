@@ -37,6 +37,10 @@ env/
 mis_juegos_steam.csv
 *.csv
 
+# Database (TinyDB)
+data/
+profiles.json
+
 # ===========================
 # FRONTEND (React/Node)
 # ===========================

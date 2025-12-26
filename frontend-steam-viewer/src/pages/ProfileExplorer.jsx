@@ -1,15 +1,17 @@
-import { useState } from 'react';
-import SearchBox from '../componets/SearchBox';
-import PlayerInfo from '../componets/PlayerInfo';
-import GamesList from '../componets/GamesList';
-import { getGames } from '../services/steamApi';
+import { useState, useEffect } from 'react';
+import SearchBox from '../componets/common/SearchBox';
+import PlayerInfo from '../componets/ui/PlayerInfo';
+import GamesList from '../componets/ui/GamesList';
+import FavoriteButton from '../componets/common/FavoriteButton';
+import { getGames, addFavorite, removeFavorite } from '../services/steamApi';
 import { AlertTriangle } from 'lucide-react';
 
-const ProfileExplorer = () => {
+const ProfileExplorer = ({ initialSteamId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const [currentSteamId, setCurrentSteamId] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const handleSearch = async (steamId) => {
     setLoading(true);
@@ -20,12 +22,34 @@ const ProfileExplorer = () => {
     try {
       const data = await getGames(steamId);
       setPlayerData(data);
+      setIsFavorite(data.is_favorite || false);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleToggleFavorite = async (steamId, player) => {
+    try {
+      if (isFavorite) {
+        await removeFavorite(steamId);
+        setIsFavorite(false);
+      } else {
+        await addFavorite(steamId, player.personaname, player.avatar);
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
+  // Efecto para cargar perfil cuando cambia initialSteamId
+  useEffect(() => {
+    if (initialSteamId && initialSteamId !== currentSteamId) {
+      handleSearch(initialSteamId);
+    }
+  }, [initialSteamId]);
 
   return (
     <div className="content-section">
@@ -46,10 +70,20 @@ const ProfileExplorer = () => {
 
       {playerData && (
         <>
+          <div className="profile-actions">
+            <FavoriteButton
+              steamId={currentSteamId}
+              playerData={playerData.player}
+              isFavorite={isFavorite}
+              onToggle={handleToggleFavorite}
+            />
+          </div>
+          
           <PlayerInfo 
             player={playerData.player} 
             stats={playerData.stats} 
           />
+
           <GamesList 
             games={playerData.games} 
             steamId={currentSteamId} 

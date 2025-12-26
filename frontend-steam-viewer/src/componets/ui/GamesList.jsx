@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Search, FileDown } from 'lucide-react';
 import GameCard from './GameCard';
-import { exportToCSV } from '../services/steamApi';
+import { exportToCSV } from '../../services/steamApi';
 
 const GamesList = ({ games, steamId }) => {
   const [searchTerm, setSearchTerm] = useState('');

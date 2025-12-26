@@ -167,3 +167,113 @@ class SteamService:
             'games_never_played': total_games - games_played,
             'average_hours': round(total_hours / total_games, 1) if total_games > 0 else 0
         }
+    
+    @staticmethod
+    def get_wishlist(steam_id: str) -> List[Dict]:
+        """
+        Obtiene la lista de deseados (wishlist) de un usuario de Steam
+        Usa el endpoint público de Steam Store (no requiere API key)
+        
+        Args:
+            steam_id: Steam ID del usuario
+            
+        Returns:
+            Lista de juegos en la wishlist con su información
+        """
+        # Endpoint público de Steam para wishlist
+        url = f'https://store.steampowered.com/wishlist/profiles/{steam_id}/wishlistdata/'
+        
+        try:
+            # Headers completos para simular un navegador real
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Referer': f'https://store.steampowered.com/wishlist/profiles/{steam_id}/',
+                'X-Requested-With': 'XMLHttpRequest',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-origin'
+            }
+            
+            # Cookies básicas de Steam para contenido mature
+            cookies = {
+                'wants_mature_content': '1',
+                'birthtime': '283996801',  # Jan 1, 1979
+                'lastagecheckage': '1-0-1979',
+                'sessionid': 'placeholder',  # Placeholder, Steam a veces funciona sin esto
+            }
+            
+            session = requests.Session()
+            session.headers.update(headers)
+            session.cookies.update(cookies)
+            
+            response = session.get(url, timeout=10)
+            
+            if response.status_code != 200:
+                print(f"Error HTTP {response.status_code} al obtener wishlist")
+                return []
+            
+            # Verificar si es HTML (wishlist privada o perfil inválido)
+            content_type = response.headers.get('Content-Type', '')
+            if 'html' in content_type.lower():
+                print(f"Wishlist privada o requiere autenticación (recibido HTML). Steam ID: {steam_id}")
+                return []
+            
+            # Intentar parsear JSON
+            try:
+                data = response.json()
+            except ValueError as e:
+                print(f"Error parseando JSON de wishlist: {e}")
+                # Verificar si la respuesta está vacía
+                if not response.text or response.text.strip() in ('[]', '{}', ''):
+                    print("Wishlist vacía")
+                    return []
+                return []
+            
+            # Verificar si el JSON está vacío
+            if not data or len(data) == 0:
+                print(f"Wishlist vacía para Steam ID: {steam_id}")
+                return []
+            
+            # Convertir el diccionario a lista
+            wishlist_games = []
+            for appid, game_data in data.items():
+                wishlist_game = {
+                    'appid': int(appid),
+                    'name': game_data.get('name', ''),
+                    'capsule': game_data.get('capsule', ''),
+                    'review_score': game_data.get('review_score', 0),
+                    'review_desc': game_data.get('review_desc', ''),
+                    'reviews_total': game_data.get('reviews_total', '0'),
+                    'reviews_percent': game_data.get('reviews_percent', 0),
+                    'release_date': game_data.get('release_date', 0),
+                    'release_string': game_data.get('release_string', ''),
+                    'platform_icons': game_data.get('platform_icons', ''),
+                    'subs': game_data.get('subs', []),
+                    'type': game_data.get('type', 'game'),
+                    'screenshots': game_data.get('screenshots', []),
+                    'review_css': game_data.get('review_css', ''),
+                    'priority': game_data.get('priority', 0),
+                    'added': game_data.get('added', 0),
+                    'background': game_data.get('background', ''),
+                    'rank': game_data.get('rank', 0),
+                    'tags': game_data.get('tags', []),
+                    'is_free_game': game_data.get('is_free_game', False),
+                    'win': game_data.get('win', 0),
+                    'mac': game_data.get('mac', 0),
+                    'linux': game_data.get('linux', 0)
+                }
+                wishlist_games.append(wishlist_game)
+            
+            # Ordenar por prioridad (menor número = mayor prioridad)
+            wishlist_games.sort(key=lambda x: x.get('priority', 999))
+            
+            print(f"Wishlist obtenida exitosamente: {len(wishlist_games)} juegos")
+            return wishlist_games
+            
+        except Exception as e:
+            print(f"Error obteniendo wishlist: {e}")
+            return []
