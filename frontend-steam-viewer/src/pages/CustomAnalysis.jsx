@@ -1,13 +1,16 @@
 import { Upload } from 'lucide-react';
 
-const CustomAnalysis = () => {
+const CustomAnalysis = ({ activeUser }) => {
   return (
     <div className="content-section">
       <div className="section-header">
         <Upload size={32} />
         <h2>Análisis Personalizado</h2>
         <p className="section-subtitle">
-          Esta sección está en desarrollo
+          {activeUser 
+            ? `Usuario activo: ${activeUser.playerData.personaname}` 
+            : 'Esta sección está en desarrollo'
+          }
         </p>
       </div>
     </div>

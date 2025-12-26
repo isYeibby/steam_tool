@@ -6,7 +6,7 @@ import FavoriteButton from '../componets/common/FavoriteButton';
 import { getGames, addFavorite, removeFavorite } from '../services/steamApi';
 import { AlertTriangle } from 'lucide-react';
 
-const ProfileExplorer = ({ initialSteamId }) => {
+const ProfileExplorer = ({ initialSteamId, onUserLoaded }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [playerData, setPlayerData] = useState(null);
@@ -23,6 +23,16 @@ const ProfileExplorer = ({ initialSteamId }) => {
       const data = await getGames(steamId);
       setPlayerData(data);
       setIsFavorite(data.is_favorite || false);
+      
+      // Notificar al componente padre que se cargó un usuario
+      if (onUserLoaded) {
+        onUserLoaded({
+          steamId: steamId,
+          playerData: data.player,
+          stats: data.stats,
+          games: data.games
+        });
+      }
     } catch (err) {
       setError(err.message);
     } finally {

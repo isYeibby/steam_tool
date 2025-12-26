@@ -10,24 +10,29 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedSteamId, setSelectedSteamId] = useState(null);
+  const [activeUser, setActiveUser] = useState(null);
 
   const handleProfileSelect = (steamId) => {
     setSelectedSteamId(steamId);
     setActiveTab('profile');
   };
 
+  const handleSetActiveUser = (userData) => {
+    setActiveUser(userData);
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'profile':
-        return <ProfileExplorer initialSteamId={selectedSteamId} />;
+        return <ProfileExplorer initialSteamId={selectedSteamId} onUserLoaded={handleSetActiveUser} />;
       case 'priority':
-        return <GamePriority />;
+        return <GamePriority activeUser={activeUser} />;
       case 'custom':
-        return <CustomAnalysis />;
+        return <CustomAnalysis activeUser={activeUser} />;
       case 'about':
         return <About />;
       default:
-        return <ProfileExplorer />;
+        return <ProfileExplorer onUserLoaded={handleSetActiveUser} />;
     }
   };
 
@@ -37,6 +42,7 @@ const Home = () => {
         activeTab={activeTab} 
         onTabChange={setActiveTab}
         onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
+        activeUser={activeUser}
       />
       <div className="content-wrapper">
         <Sidebar 
