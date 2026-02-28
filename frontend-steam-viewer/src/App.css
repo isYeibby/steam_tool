@@ -1679,3 +1679,144 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   Game Priority - Steam Scores
+   ============================================ */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  color: var(--md-text-secondary);
+  text-align: center;
+}
+
+.empty-state svg {
+  color: var(--md-text-disabled);
+  margin-bottom: 16px;
+}
+
+.games-scores-container {
+  margin-top: 24px;
+}
+
+.games-scores-header {
+  padding: 16px 24px;
+  background: var(--md-surface-2);
+  border-radius: 12px 12px 0 0;
+  border: 1px solid var(--md-outline-variant);
+  border-bottom: none;
+}
+
+.games-scores-header h3 {
+  margin: 0;
+  color: var(--md-text-primary);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.rank-cell {
+  width: 60px;
+  text-align: center;
+  color: var(--md-text-secondary);
+  font-weight: 600;
+}
+
+.game-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.game-icon {
+  width: 92px;
+  height: 43px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--md-outline-variant);
+}
+
+.game-name {
+  color: var(--md-text-primary);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.game-meta {
+  color: var(--md-text-secondary);
+  font-size: 0.85rem;
+}
+
+.score-cell {
+  width: 300px;
+}
+
+.score-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1rem;
+  min-width: 55px;
+  text-align: center;
+}
+
+.score-green {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.score-yellow {
+  background: rgba(139, 195, 74, 0.2);
+  color: #8bc34a;
+  border: 1px solid rgba(139, 195, 74, 0.4);
+}
+
+.score-orange {
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.4);
+}
+
+.score-red {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.4);
+}
+
+.score-na {
+  color: var(--md-text-disabled);
+  font-style: italic;
+}
+
+.score-desc {
+  color: var(--md-text-secondary);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .game-icon {
+    width: 60px;
+    height: 28px;
+  }
+
+  .score-cell {
+    width: auto;
+  }
+
+  .score-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

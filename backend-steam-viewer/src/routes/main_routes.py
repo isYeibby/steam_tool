@@ -12,6 +12,7 @@ from typing import List, Dict
 from src.services.steam_service import SteamService
 from src.services.database_service import DatabaseService
 from src.services.game_priority_service import game_priority_service
+from src.services.steam_reviews_service import steam_reviews_service
 
 # Crear router
 router = APIRouter(prefix="/api", tags=["steam"])
@@ -469,3 +470,22 @@ async def match_csv_with_steam(steam_id: str, file: UploadFile = File(...)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f'Error procesando datos: {str(e)}')
+
+
+@router.post("/games/reviews")
+async def get_games_reviews(appids: List[int]):
+    """
+    Obtiene las puntuaciones de Steam Reviews para múltiples juegos
+    
+    Args:
+        appids: Lista de IDs de juegos de Steam
+        
+    Returns:
+        Dict con appid como key y datos de reviews
+    """
+    try:
+        results = steam_reviews_service.get_multiple_reviews(appids)
+        return results
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f'Error obteniendo reviews: {str(e)}')
